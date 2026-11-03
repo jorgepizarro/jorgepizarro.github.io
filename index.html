@@ -1,1 +1,198 @@
-prueba
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Portal Personal de Jorge Pizarro - Acceso centralizado a servicios, multimedia y servidor.">
+  
+  <title>JORGE PIZARRO | Portal Personal</title>
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jorge Pizarro">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+  
+  <!-- Tipografía moderna Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Hoja de Estilos Principal -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Fondos de iluminación ambiental -->
+  <div class="ambient-glow ambient-top-left" aria-hidden="true"></div>
+  <div class="ambient-glow ambient-bottom-right" aria-hidden="true"></div>
+
+  <!-- Header Minimalista con Switch de Tema -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-monogram">JP</span>
+        <span class="brand-text">JORGE PIZARRO</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Indicador de Estado -->
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">PORTAL ACTIVO</span>
+        </div>
+
+        <!-- Botón Instalar App (PWA) -->
+        <button class="install-btn" id="installBtn" aria-label="Instalar como App" title="Instalar como App en tu dispositivo" style="display: none;">
+          <svg class="install-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          <span class="install-label">Instalar App</span>
+        </button>
+
+        <!-- Botón Cambio Modo Claro / Modo Oscuro -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo claro u oscuro" title="Cambiar tema (Claro / Oscuro)">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="main-content">
+    
+    <!-- Hero Principal -->
+    <section class="hero-section" id="hero">
+      <!-- Contenedor modular de imagen de fondo (Fácilmente reemplazable vía assets/hero.jpg) -->
+      <div class="hero-media-wrapper">
+        <img src="assets/hero.jpg" alt="Jorge Pizarro - Fondo Tecnológico" class="hero-bg-image" id="heroImage">
+        <div class="hero-overlay-gradient"></div>
+        <div class="hero-overlay-radial"></div>
+        <div class="hero-overlay-grid"></div>
+      </div>
+
+      <!-- Contenido del Hero -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-pulse"></span>
+          <span>PORTAL PERSONAL</span>
+        </div>
+        
+        <h1 class="hero-title">
+          JORGE PIZARRO
+        </h1>
+        
+        <p class="hero-subtitle">
+          MI ESPACIO PERSONAL
+        </p>
+      </div>
+    </section>
+
+    <!-- Sección de Accesos Rápidos (Dashboard) -->
+    <section class="portal-section" id="accesos" aria-label="Accesos directos">
+      <div class="section-header">
+        <span class="section-tag">DASHBOARD</span>
+        <h2 class="section-title">ACCESOS DIRECTOS</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <!-- Grid de Tarjetas (Renderizado dinámico mediante app.js) -->
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Contenido generado dinámicamente por js/app.js -->
+        <noscript>
+          <a href="http://192.168.0.20/camboton.html" class="portal-card">
+            <div class="card-icon">📹</div>
+            <div class="card-title">CÁMARAS</div>
+            <p class="card-desc">Seguridad y monitoreo</p>
+          </a>
+          <a href="tvchile.html" class="portal-card">
+            <div class="card-icon">🇨🇱</div>
+            <div class="card-title">TV CHILE</div>
+            <p class="card-desc">Canales chilenos en vivo</p>
+          </a>
+          <a href="http://192.168.0.30" class="portal-card">
+            <div class="card-icon">🖥️</div>
+            <div class="card-title">SERVIDOR</div>
+            <p class="card-desc">Servicios del servidor</p>
+          </a>
+          <a href="http://192.168.0.20/syp/" class="portal-card">
+            <div class="card-icon">🎬</div>
+            <div class="card-title">SERIES Y PELÍCULAS</div>
+            <p class="card-desc">Contenido multimedia</p>
+          </a>
+          <a href="radios.html" class="portal-card">
+            <div class="card-icon">📻</div>
+            <div class="card-title">RADIOS</div>
+            <p class="card-desc">Escucha mis radios</p>
+          </a>
+          <a href="tv.html" class="portal-card">
+            <div class="card-icon">📺</div>
+            <div class="card-title">TV</div>
+            <p class="card-desc">Televisión</p>
+          </a>
+          <a href="videos.html" class="portal-card">
+            <div class="card-icon">🎥</div>
+            <div class="card-title">VIDEOS</div>
+            <p class="card-desc">Reproductor de videos</p>
+          </a>
+          <a href="http://192.168.0.20/otros" class="portal-card">
+            <div class="card-icon">⚡</div>
+            <div class="card-title">OTROS</div>
+            <p class="card-desc">Otros servicios</p>
+          </a>
+          <a href="http://192.168.0.20/nac.html" class="portal-card">
+            <div class="card-icon">🔲</div>
+            <div class="card-title">TV MOSAICO</div>
+            <p class="card-desc">Mosaico multicanal en vivo</p>
+          </a>
+          <a href="http://192.168.0.30:9000" class="portal-card">
+            <div class="card-icon">☁️</div>
+            <div class="card-title">NEXTCLOUD</div>
+            <p class="card-desc">Nube y almacenamiento</p>
+          </a>
+          <a href="camboton.html" class="portal-card">
+            <div class="card-icon">📹</div>
+            <div class="card-title">CAM BOTON</div>
+            <p class="card-desc">Cámaras con botonera</p>
+          </a>
+        </noscript>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Discreto -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-copy">
+        &copy; <span id="currentYear">2026</span> <strong>Jorge Pizarro</strong> &bull; Portal Personal
+      </div>
+      <div class="footer-tagline">
+        Tecnológico &bull; Minimalista &bull; Privado
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lógica y configuración del Portal -->
+  <script src="js/app.js"></script>
+</body>
+</html>
