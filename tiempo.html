@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estación Meteorológica - Panel Histórico y Tiempo Real</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        weather: {
+                            bg: '#0B132B',
+                            card: '#1C2541',
+                            accent: '#48CAE4',
+                            primary: '#0077B6',
+                            highlight: '#5BC0BE'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.6);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .chart-tab-active {
+            background-color: rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.5);
+            color: #38bdf8;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300 light:bg-slate-100 light:text-slate-800">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Header Bar -->
+        <header class="glass-card rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all duration-300">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl border border-cyan-500/20 shadow-inner">
+                    <i data-lucide="cloud-sun" class="w-8 h-8 sm:w-10 sm:h-10 animate-float"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                        Estación Meteorológica Doméstica
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400 flex items-center gap-2 mt-0.5">
+                        <span id="endpointLabel" class="truncate max-w-[200px] sm:max-w-xs">http://192.168.0.10:7000</span>
+                        <button onclick="openConfigModal()" class="text-cyan-400 hover:text-cyan-300 transition-colors p-1" title="Configurar Endpoints">
+                            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Controls & Indicators -->
+            <div class="flex flex-wrap items-center justify-between w-full md:w-auto gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-700/50">
+                
+                <!-- Connection Status Badge -->
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold glass-card border" id="statusBadge">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span id="statusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span id="statusDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span id="statusText" class="text-emerald-400">En Línea</span>
+                </div>
+
+                <!-- Refresh Rate Selector -->
+                <div class="flex items-center gap-1 bg-slate-800/80 light:bg-slate-200/80 rounded-lg p-1 text-xs">
+                    <button onclick="setRefreshInterval(2000)" class="interval-btn px-2 py-1 rounded-md transition-all font-medium text-slate-400 hover:text-white" data-interval="2000">2s</button>
+                    <button onclick="setRefreshInterval(5000)" class="interval-btn px-2 py-1 rounded-md transition-all font-medium bg-cyan-500 text-slate-950 shadow font-bold" data-interval="5000">5s</button>
+                    <button onclick="setRefreshInterval(10000)" class="interval-btn px-2 py-1 rounded-md transition-all font-medium text-slate-400 hover:text-white" data-interval="10000">10s</button>
+                </div>
+
+                <!-- Sync Button & Theme Switch -->
+                <div class="flex items-center gap-2">
+                    <button onclick="reloadAllData()" class="p-2 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30 active:scale-95 transition-all" title="Recargar Historial y Datos">
+                        <i data-lucide="refresh-cw" id="refreshIcon" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 hover:bg-slate-700 transition-all" title="Cambiar tema">
+                        <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Timestamp & Status Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 px-2 gap-2">
+            <div class="flex items-center gap-2">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Última lectura: <strong id="lastUpdated" class="text-slate-200 font-mono">sin/info</strong></span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1">
+                    <i data-lucide="history" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    Historial de 24h: <strong id="historyCount" class="text-cyan-400 font-mono">sin/info</strong>
+                </span>
+                <span class="flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    Récords: <strong id="dailyCount" class="text-emerald-400 font-mono">sin/info</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- Live Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <!-- Card 1: Temperature (AHT20 Only) -->
+            <div class="glass-card rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                        <i data-lucide="thermometer" class="w-4 h-4 text-amber-400"></i>
+                        <span>Temperatura (AHT20)</span>
+                    </div>
+                    <span id="tempBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">sin/info</span>
+                </div>
+
+                <div class="flex items-baseline gap-2 my-2">
+                    <span id="tempAht" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-100 font-mono">sin/info</span>
+                    <span class="text-xl text-slate-400 font-semibold">°C</span>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Punto de Rocío:</span>
+                    <span id="dewPointVal" class="font-mono font-bold text-teal-300">sin/info</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Relative Humidity -->
+            <div class="glass-card rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                        <i data-lucide="droplets" class="w-4 h-4 text-blue-400"></i>
+                        <span>Humedad Relativa</span>
+                    </div>
+                    <span id="humidityComfortBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">sin/info</span>
+                </div>
+
+                <div class="flex items-baseline gap-2 my-2">
+                    <span id="humidityVal" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-100 font-mono">sin/info</span>
+                    <span class="text-xl text-slate-400 font-semibold">%</span>
+                </div>
+
+                <div class="mt-4 pt-1">
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                        <div id="humidityBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-1.5">
+                        <span>Seco</span>
+                        <span>Ideal (50%)</span>
+                        <span>Húmedo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Atmospheric Pressure -->
+            <div class="glass-card rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                        <i data-lucide="gauge" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Presión Atmosférica</span>
+                    </div>
+                    <span id="pressureTrend" class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        sin/info
+                    </span>
+                </div>
+
+                <div class="flex items-baseline gap-2 my-2">
+                    <span id="pressureVal" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-100 font-mono">sin/info</span>
+                    <span class="text-sm text-slate-400 font-semibold">hPa</span>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-between text-xs text-slate-400">
+                    <span>Altitud aprox.:</span>
+                    <span id="approxAltitude" class="text-slate-200 font-mono">sin/info</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Rain Probability -->
+            <div class="glass-card rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-500/10 rounded-full blur-xl group-hover:bg-teal-500/20 transition-all"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                        <i data-lucide="cloud-rain" class="w-4 h-4 text-teal-400"></i>
+                        <span>Prob. de Lluvia</span>
+                    </div>
+                    <span id="rainBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">sin/info</span>
+                </div>
+
+                <div class="flex items-baseline gap-2 my-2">
+                    <span id="rainProb" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-100 font-mono">sin/info</span>
+                    <span class="text-xl text-slate-400 font-semibold">%</span>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Diagnóstico:</span>
+                    <span id="rainStatusText" class="text-cyan-300 font-medium">sin/info</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Historical Statistics Summary Bar (24 Hours) -->
+        <div class="glass-card rounded-2xl p-4 shadow-xl space-y-3">
+            <div class="flex items-center gap-2 text-sm font-bold text-slate-200">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i>
+                <span>Resumen del Período de 24 Horas (/api/history?hours=24)</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <!-- Temp Stats -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <div class="text-amber-400 font-semibold flex justify-between">
+                        <span>Temperatura (AHT20)</span>
+                        <i data-lucide="thermometer" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex justify-between text-slate-300 pt-1 font-mono">
+                        <span>Mín: <strong id="statTempMin" class="text-white">sin/info</strong></span>
+                        <span>Prom: <strong id="statTempAvg" class="text-cyan-300">sin/info</strong></span>
+                        <span>Máx: <strong id="statTempMax" class="text-white">sin/info</strong></span>
+                    </div>
+                </div>
+
+                <!-- Humidity Stats -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <div class="text-blue-400 font-semibold flex justify-between">
+                        <span>Humedad</span>
+                        <i data-lucide="droplets" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex justify-between text-slate-300 pt-1 font-mono">
+                        <span>Mín: <strong id="statHumMin" class="text-white">sin/info</strong></span>
+                        <span>Prom: <strong id="statHumAvg" class="text-cyan-300">sin/info</strong></span>
+                        <span>Máx: <strong id="statHumMax" class="text-white">sin/info</strong></span>
+                    </div>
+                </div>
+
+                <!-- Pressure Stats -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <div class="text-emerald-400 font-semibold flex justify-between">
+                        <span>Presión Atmosférica</span>
+                        <i data-lucide="gauge" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex justify-between text-slate-300 pt-1 font-mono">
+                        <span>Mín: <strong id="statPressMin" class="text-white">sin/info</strong></span>
+                        <span>Prom: <strong id="statPressAvg" class="text-cyan-300">sin/info</strong></span>
+                        <span>Máx: <strong id="statPressMax" class="text-white">sin/info</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Main Chart (WITHOUT FLICKER) -->
+        <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
+            
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-700/50 pb-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        <i data-lucide="line-chart" class="w-5 h-5 text-cyan-400"></i>
+                        <span id="chartTitleText">Evolución Histórica (Últimas 6 Horas)</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Actualización continua sin parpadeos desde <code class="text-cyan-400 font-mono">/api/history?hours=24</code></p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Time Range Selector Buttons (1h, 3h, 6h, 12h, 24h) -->
+                    <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-xs">
+                        <button onclick="setChartHours(1)" data-hours="1" class="chart-range-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            1h
+                        </button>
+                        <button onclick="setChartHours(3)" data-hours="3" class="chart-range-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            3h
+                        </button>
+                        <button onclick="setChartHours(6)" data-hours="6" class="chart-range-btn chart-tab-active px-2.5 py-1.5 rounded-lg border border-transparent transition-all">
+                            6h
+                        </button>
+                        <button onclick="setChartHours(12)" data-hours="12" class="chart-range-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            12h
+                        </button>
+                        <button onclick="setChartHours(24)" data-hours="24" class="chart-range-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            24h
+                        </button>
+                    </div>
+
+                    <!-- Chart Selector Tabs -->
+                    <div class="flex flex-wrap items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-xs">
+                        <button onclick="switchChartTab('temp')" id="tabBtnTemp" class="chart-tab-active px-3 py-1.5 rounded-lg border border-transparent transition-all">
+                            Temperatura
+                        </button>
+                        <button onclick="switchChartTab('humidity')" id="tabBtnHum" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            Humedad y Lluvia
+                        </button>
+                        <button onclick="switchChartTab('pressure')" id="tabBtnPress" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all">
+                            Presión
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="h-72 sm:h-80 w-full relative">
+                <canvas id="mainHistoryChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- 10-DAY HISTORICAL EXTREMES (/api/daily-stats) -->
+        <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4 border border-emerald-500/20">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-700/50 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                        <i data-lucide="calendar-range" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100">Máximos y Mínimos Diarios (Últimos 10 Días)</h2>
+                        <p class="text-xs text-slate-400">Registro histórico de temperaturas extremas y la hora de ocurrencia</p>
+                    </div>
+                </div>
+                <span class="text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-medium">
+                    Sensor AHT20
+                </span>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-800">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px]">
+                        <tr>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="px-4 py-3">Mínima Diaria</th>
+                            <th class="px-4 py-3">Hora Mínima</th>
+                            <th class="px-4 py-3">Máxima Diaria</th>
+                            <th class="px-4 py-3">Hora Máxima</th>
+                            <th class="px-4 py-3">Amplitud Térmica</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyStatsTableBody" class="divide-y divide-slate-800 text-slate-300 bg-slate-950/40">
+                        <tr class="hover:bg-slate-900/80 transition-colors">
+                            <td class="px-4 py-3 text-cyan-400 font-bold">2026-10-27</td>
+                            <td class="px-4 py-3 text-blue-300 font-semibold">12.7 °C</td>
+                            <td class="px-4 py-3 text-slate-400">07:11</td>
+                            <td class="px-4 py-3 text-rose-400 font-semibold">25.2 °C</td>
+                            <td class="px-4 py-3 text-slate-400">16:38</td>
+                            <td class="px-4 py-3 text-amber-300 font-semibold">12.5 °C</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Log Table & Raw Data Inspection Accordion -->
+        <div class="glass-card rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-slate-800 rounded-lg text-slate-300">
+                        <i data-lucide="table" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-200">Tabla de Registros de 24 Horas</h3>
+                        <p class="text-xs text-slate-400">Detalle de mediciones de la estación</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="exportToCSV()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-medium flex items-center gap-1.5 border border-slate-700">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+                    </button>
+                    <button onclick="toggleTableViewer()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 border border-slate-700">
+                        <span id="tableToggleText">Mostrar Tabla</span>
+                        <i data-lucide="chevron-down" id="tableChevron" class="w-3.5 h-3.5 transition-transform duration-300"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expandable Table Area -->
+            <div id="tableContainer" class="hidden pt-3 border-t border-slate-700/50">
+                <div class="overflow-x-auto max-h-60 rounded-xl border border-slate-800">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-900/90 text-slate-400 sticky top-0 uppercase text-[10px]">
+                            <tr>
+                                <th class="px-4 py-2">Hora</th>
+                                <th class="px-4 py-2">Temp AHT (°C)</th>
+                                <th class="px-4 py-2">Humedad (%)</th>
+                                <th class="px-4 py-2">Punto Rocío (°C)</th>
+                                <th class="px-4 py-2">Presión (hPa)</th>
+                                <th class="px-4 py-2">Prob. Lluvia (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="divide-y divide-slate-800 text-slate-300 bg-slate-950/50">
+                            <tr>
+                                <td colspan="6" class="px-4 py-4 text-center text-slate-500">Cargando registros...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="configModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 relative">
+            <button onclick="closeConfigModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2 bg-cyan-500/10 text-cyan-400 rounded-lg">
+                    <i data-lucide="sliders" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100">Configuración de Endpoints</h3>
+            </div>
+            
+            <div class="space-y-4 text-xs sm:text-sm">
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">URL de Datos en Vivo (/api/data)</label>
+                    <input type="text" id="apiUrlInput" value="http://192.168.0.10:7000/api/data" 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">URL Histórica (/api/history?hours=24)</label>
+                    <input type="text" id="apiHistoryUrlInput" value="http://192.168.0.10:7000/api/history?hours=24" 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">URL Estadísticas 10 Días (/api/daily-stats)</label>
+                    <input type="text" id="apiDailyStatsUrlInput" value="http://192.168.0.10:7000/api/daily-stats" 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-cyan-500 font-mono">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="closeConfigModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
+                <button onclick="saveConfig()" class="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 text-xs font-bold shadow-lg">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Application Configuration & State
+        let config = {
+            apiUrl: 'http://192.168.0.10:7000/api/data',
+            apiHistoryUrl: 'http://192.168.0.10:7000/api/history?hours=24',
+            apiDailyStatsUrl: 'http://192.168.0.10:7000/api/daily-stats',
+            refreshInterval: 5000,
+            activeTab: 'temp',
+            chartHours: 6
+        };
+
+        let fetchTimer = null;
+        let mainChart = null;
+
+        // Structured Data Stores
+        let historyStore = [];
+        let dailyStatsStore = [
+            {
+                date: '2026-10-27',
+                min_temp: 12.72,
+                min_time: '07:11',
+                max_temp: 25.17,
+                max_time: '16:38'
+            }
+        ];
+
+        // Normalize timestamps for history items (supports ISO timestamp or HH:MM time strings)
+        function assignTimestampsToHistory(list) {
+            if (!Array.isArray(list) || list.length === 0) return [];
+            const refNow = Date.now();
+            const parseMins = (timeStr) => {
+                if (!timeStr || typeof timeStr !== 'string') return null;
+                const parts = timeStr.trim().split(':');
+                if (parts.length < 2) return null;
+                const h = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                return (isNaN(h) || isNaN(m)) ? null : (h * 60 + m);
+            };
+
+            const lastIdx = list.length - 1;
+            const latestMins = parseMins(list[lastIdx].time);
+            let prevMins = latestMins;
+            let dayOffset = 0;
+
+            for (let i = lastIdx; i >= 0; i--) {
+                const item = list[i];
+                const parsedTs = item.timestamp ? new Date(item.timestamp).getTime() : NaN;
+                if (!isNaN(parsedTs)) {
+                    item._ts = parsedTs;
+                    const m = parseMins(item.time);
+                    if (m !== null) prevMins = m;
+                } else {
+                    const mins = parseMins(item.time);
+                    if (mins !== null && latestMins !== null) {
+                        if (i < lastIdx && prevMins !== null && mins > prevMins + 10) {
+                            dayOffset -= 1;
+                        }
+                        prevMins = mins;
+                        const diffMinutesFromLatest = (latestMins - mins) - (dayOffset * 1440);
+                        item._ts = refNow - diffMinutesFromLatest * 60 * 1000;
+                    } else {
+                        // Fallback proportional spacing over 24h
+                        const ratioFromEnd = (lastIdx - i) / Math.max(1, lastIdx);
+                        item._ts = refNow - ratioFromEnd * 24 * 3600 * 1000;
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initCharts();
+            reloadAllData();
+            startAutoRefresh();
+        });
+
+        // Theme Switcher
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                themeIcon.setAttribute('data-lucide', 'sun');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                themeIcon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        // Modal Handlers
+        function openConfigModal() {
+            document.getElementById('apiUrlInput').value = config.apiUrl;
+            document.getElementById('apiHistoryUrlInput').value = config.apiHistoryUrl;
+            document.getElementById('apiDailyStatsUrlInput').value = config.apiDailyStatsUrl;
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function saveConfig() {
+            config.apiUrl = document.getElementById('apiUrlInput').value.trim();
+            config.apiHistoryUrl = document.getElementById('apiHistoryUrlInput').value.trim();
+            config.apiDailyStatsUrl = document.getElementById('apiDailyStatsUrlInput').value.trim();
+            document.getElementById('endpointLabel').textContent = config.apiUrl.replace('/api/data', '');
+            closeConfigModal();
+            reloadAllData();
+        }
+
+        function setRefreshInterval(ms) {
+            config.refreshInterval = ms;
+            document.querySelectorAll('.interval-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-interval')) === ms) {
+                    btn.className = 'interval-btn px-2 py-1 rounded-md transition-all font-bold bg-cyan-500 text-slate-950 shadow';
+                } else {
+                    btn.className = 'interval-btn px-2 py-1 rounded-md transition-all font-medium text-slate-400 hover:text-white';
+                }
+            });
+            startAutoRefresh();
+        }
+
+        function startAutoRefresh() {
+            if (fetchTimer) clearInterval(fetchTimer);
+            fetchTimer = setInterval(fetchLiveDataOnly, config.refreshInterval);
+        }
+
+        // Master Data Reload
+        async function reloadAllData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('animate-spin');
+
+            await Promise.all([
+                fetchHistoricalData(),
+                fetchDailyStatsData(),
+                fetchLiveDataOnly()
+            ]);
+
+            setTimeout(() => {
+                refreshIcon.classList.remove('animate-spin');
+            }, 300);
+        }
+
+        // Fetch 24-Hour History (/api/history?hours=24)
+        async function fetchHistoricalData() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await fetch(config.apiHistoryUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+
+                const rawList = Array.isArray(json) ? json : (json.history || []);
+
+                if (Array.isArray(rawList) && rawList.length > 0) {
+                    // Filter and map strictly real AHT temperature data
+                    historyStore = assignTimestampsToHistory(rawList.map(item => ({
+                        time: item.time || (item.timestamp ? new Date(item.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'sin/info'),
+                        timestamp: item.timestamp || null,
+                        temp_aht: item.temp_aht ?? item.temp_aht20 ?? item.temp ?? null,
+                        dew_point: item.dew_point ?? null,
+                        humidity: item.humidity ?? null,
+                        pressure: item.pressure ?? item.pressure_hpa ?? null,
+                        rain_prob: item.rain_prob ?? null
+                    })));
+                } else {
+                    historyStore = [];
+                }
+            } catch (err) {
+                console.warn('History fetch failed:', err.message);
+                historyStore = [];
+            }
+            updateHistoryUI();
+        }
+
+        // Fetch 10-Day Daily Stats (/api/daily-stats)
+        async function fetchDailyStatsData() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await fetch(config.apiDailyStatsUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+
+                const rawList = Array.isArray(json) ? json : (json.days || json.daily_stats || json.stats || []);
+
+                if (Array.isArray(rawList) && rawList.length > 0) {
+                    dailyStatsStore = rawList.map(item => ({
+                        date: item.date || item.day || 'sin/info',
+                        min_temp: item.min_temp ?? item.temp_aht_min ?? item.temp_min ?? null,
+                        min_time: item.min_time ?? 'sin/info',
+                        max_temp: item.max_temp ?? item.temp_aht_max ?? item.temp_max ?? null,
+                        max_time: item.max_time ?? 'sin/info'
+                    }));
+                } else {
+                    dailyStatsStore = [];
+                }
+            } catch (err) {
+                console.warn('Daily stats fetch failed:', err.message);
+            }
+            updateDailyStatsUI();
+        }
+
+        // Fetch Live Point (/api/data)
+        async function fetchLiveDataOnly() {
+            let liveData = null;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+                const response = await fetch(config.apiUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                liveData = await response.json();
+            } catch (err) {
+                updateUIStatusDisconnected(err.message);
+                return;
+            }
+
+            if (liveData) {
+                updateLiveCards(liveData);
+                appendLiveToHistory(liveData);
+            }
+        }
+
+        // Append live data smoothly without flickering or resetting charts
+        function appendLiveToHistory(live) {
+            const nowTs = live.timestamp ? new Date(live.timestamp).getTime() : Date.now();
+            const timeStr = live.time || new Date(nowTs).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const tempVal = live.temp_aht20 ?? live.temp_aht ?? null;
+            const pressureVal = live.pressure_hpa ?? live.pressure ?? null;
+
+            if (tempVal === null && pressureVal === null && (live.humidity ?? null) === null) return;
+
+            const newItem = {
+                time: timeStr,
+                timestamp: live.timestamp || new Date(nowTs).toISOString(),
+                _ts: !isNaN(nowTs) ? nowTs : Date.now(),
+                temp_aht: tempVal,
+                dew_point: live.dew_point ?? null,
+                humidity: live.humidity ?? null,
+                pressure: pressureVal,
+                rain_prob: live.rain_prob ?? null
+            };
+
+            const lastItem = historyStore[historyStore.length - 1];
+            if (!lastItem || lastItem.time !== newItem.time || lastItem.temp_aht !== newItem.temp_aht) {
+                historyStore.push(newItem);
+                if (historyStore.length > 288) historyStore.shift(); // keep 24h at 5-min steps
+                updateHistoryUI();
+            }
+        }
+
+        // Update Live Cards
+        function updateLiveCards(data) {
+            const statusDot = document.getElementById('statusDot');
+            const statusPing = document.getElementById('statusPing');
+            const statusText = document.getElementById('statusText');
+
+            statusDot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
+            statusPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
+            statusText.textContent = 'En Línea';
+            statusText.className = 'text-emerald-400';
+
+            const dateObj = data.timestamp ? new Date(data.timestamp) : new Date();
+            document.getElementById('lastUpdated').textContent = !isNaN(dateObj.getTime())
+                ? dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                : (data.time || 'sin/info');
+
+            // Temp
+            const tempVal = data.temp_aht20 ?? data.temp_aht ?? null;
+            const tempBadge = document.getElementById('tempBadge');
+            if (typeof tempVal === 'number') {
+                document.getElementById('tempAht').textContent = tempVal.toFixed(2);
+                if (tempVal > 28) {
+                    tempBadge.textContent = 'Cálido';
+                    tempBadge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20';
+                } else if (tempVal < 18) {
+                    tempBadge.textContent = 'Fresco';
+                    tempBadge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                } else {
+                    tempBadge.textContent = 'Agradable';
+                    tempBadge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                }
+            } else {
+                document.getElementById('tempAht').textContent = 'sin/info';
+                tempBadge.textContent = 'sin/info';
+            }
+
+            // Dew Point
+            const dewVal = data.dew_point ?? null;
+            document.getElementById('dewPointVal').textContent = typeof dewVal === 'number' ? `${dewVal.toFixed(1)} °C` : 'sin/info';
+
+            // Humidity
+            const humVal = data.humidity ?? null;
+            if (typeof humVal === 'number') {
+                document.getElementById('humidityVal').textContent = humVal.toFixed(1);
+                document.getElementById('humidityBar').style.width = `${Math.min(100, Math.max(0, humVal))}%`;
+                document.getElementById('humidityComfortBadge').textContent = humVal > 70 ? 'Húmedo' : (humVal < 35 ? 'Seco' : 'Agradable');
+            } else {
+                document.getElementById('humidityVal').textContent = 'sin/info';
+                document.getElementById('humidityBar').style.width = '0%';
+                document.getElementById('humidityComfortBadge').textContent = 'sin/info';
+            }
+
+            // Pressure
+            const pressVal = data.pressure_hpa ?? data.pressure ?? null;
+            if (typeof pressVal === 'number') {
+                document.getElementById('pressureVal').textContent = pressVal.toFixed(1);
+                const altitude = Math.round(44330 * (1 - Math.pow(pressVal / 1013.25, 1 / 5.255)));
+                document.getElementById('approxAltitude').textContent = `~${altitude} m.s.n.m.`;
+                document.getElementById('pressureTrend').textContent = 'Estable';
+            } else {
+                document.getElementById('pressureVal').textContent = 'sin/info';
+                document.getElementById('approxAltitude').textContent = 'sin/info';
+                document.getElementById('pressureTrend').textContent = 'sin/info';
+            }
+
+            // Rain
+            const rainVal = data.rain_prob ?? null;
+            const rainStatusText = document.getElementById('rainStatusText');
+            const rainBadge = document.getElementById('rainBadge');
+            if (typeof rainVal === 'number') {
+                document.getElementById('rainProb').textContent = rainVal;
+                if (rainVal > 70) {
+                    rainBadge.textContent = 'Alta';
+                    rainStatusText.textContent = 'Probable Lluvia';
+                    rainStatusText.className = 'text-blue-400 font-bold';
+                } else if (rainVal > 40) {
+                    rainBadge.textContent = 'Media';
+                    rainStatusText.textContent = 'Nublado / Inestable';
+                    rainStatusText.className = 'text-teal-300 font-medium';
+                } else {
+                    rainBadge.textContent = 'Baja';
+                    rainStatusText.textContent = 'Despejado';
+                    rainStatusText.className = 'text-cyan-300 font-medium';
+                }
+            } else {
+                document.getElementById('rainProb').textContent = 'sin/info';
+                rainBadge.textContent = 'sin/info';
+                rainStatusText.textContent = 'sin/info';
+            }
+        }
+
+        // Update 10-Day Daily Stats Table
+        function updateDailyStatsUI() {
+            const tbody = document.getElementById('dailyStatsTableBody');
+
+            if (dailyStatsStore.length === 0) {
+                document.getElementById('dailyCount').textContent = 'sin/info';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center text-slate-500">sin/info</td></tr>';
+                return;
+            }
+
+            document.getElementById('dailyCount').textContent = `${dailyStatsStore.length} ${dailyStatsStore.length === 1 ? 'día' : 'días'}`;
+
+            tbody.innerHTML = dailyStatsStore.map(item => {
+                const hasMin = typeof item.min_temp === 'number' && !isNaN(item.min_temp);
+                const hasMax = typeof item.max_temp === 'number' && !isNaN(item.max_temp);
+
+                const minStr = hasMin ? `${item.min_temp.toFixed(1)} °C` : 'sin/info';
+                const maxStr = hasMax ? `${item.max_temp.toFixed(1)} °C` : 'sin/info';
+                const minTimeStr = item.min_time || 'sin/info';
+                const maxTimeStr = item.max_time || 'sin/info';
+
+                let ampStr = 'sin/info';
+                if (hasMin && hasMax) {
+                    const amp = Number(item.max_temp.toFixed(1)) - Number(item.min_temp.toFixed(1));
+                    ampStr = `${amp.toFixed(1)} °C`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-900/80 transition-colors">
+                        <td class="px-4 py-3 text-cyan-400 font-bold">${item.date || 'sin/info'}</td>
+                        <td class="px-4 py-3 text-blue-300 font-semibold">${minStr}</td>
+                        <td class="px-4 py-3 text-slate-400">${minTimeStr}</td>
+                        <td class="px-4 py-3 text-rose-400 font-semibold">${maxStr}</td>
+                        <td class="px-4 py-3 text-slate-400">${maxTimeStr}</td>
+                        <td class="px-4 py-3 text-amber-300 font-semibold">${ampStr}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Refresh UI from History Store (Stats, Charts, Table)
+        function updateHistoryUI() {
+            document.getElementById('historyCount').textContent = historyStore.length > 0 ? `${historyStore.length} ppts` : 'sin/info';
+            calculateStats();
+            updateMainChartData();
+            renderTable();
+        }
+
+        // Calculate Min, Max, Avg Statistics
+        function calculateStats() {
+            if (historyStore.length === 0) {
+                document.getElementById('statTempMin').textContent = 'sin/info';
+                document.getElementById('statTempAvg').textContent = 'sin/info';
+                document.getElementById('statTempMax').textContent = 'sin/info';
+
+                document.getElementById('statHumMin').textContent = 'sin/info';
+                document.getElementById('statHumAvg').textContent = 'sin/info';
+                document.getElementById('statHumMax').textContent = 'sin/info';
+
+                document.getElementById('statPressMin').textContent = 'sin/info';
+                document.getElementById('statPressAvg').textContent = 'sin/info';
+                document.getElementById('statPressMax').textContent = 'sin/info';
+                return;
+            }
+
+            const validNums = (arr) => arr.filter(v => typeof v === 'number' && !isNaN(v));
+            const temps = validNums(historyStore.map(d => d.temp_aht));
+            const hums = validNums(historyStore.map(d => d.humidity));
+            const presses = validNums(historyStore.map(d => d.pressure));
+
+            const calc = (arr, suffix = '') => {
+                if (arr.length === 0) return { min: 'sin/info', max: 'sin/info', avg: 'sin/info' };
+                return {
+                    min: `${Math.min(...arr).toFixed(1)}${suffix}`,
+                    max: `${Math.max(...arr).toFixed(1)}${suffix}`,
+                    avg: `${(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)}${suffix}`
+                };
+            };
+
+            const tStat = calc(temps, '°C');
+            const hStat = calc(hums, '%');
+            const pStat = calc(presses, '');
+
+            document.getElementById('statTempMin').textContent = tStat.min;
+            document.getElementById('statTempAvg').textContent = tStat.avg;
+            document.getElementById('statTempMax').textContent = tStat.max;
+
+            document.getElementById('statHumMin').textContent = hStat.min;
+            document.getElementById('statHumAvg').textContent = hStat.avg;
+            document.getElementById('statHumMax').textContent = hStat.max;
+
+            document.getElementById('statPressMin').textContent = pStat.min;
+            document.getElementById('statPressAvg').textContent = pStat.avg;
+            document.getElementById('statPressMax').textContent = pStat.max;
+        }
+
+        // Render Table Data Log
+        function renderTable() {
+            const tbody = document.getElementById('historyTableBody');
+            if (historyStore.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center text-slate-500">sin/info</td></tr>';
+                return;
+            }
+
+            const fmt = (v, dec, unit) => (typeof v === 'number' && !isNaN(v)) ? `${v.toFixed(dec)} ${unit}` : 'sin/info';
+
+            tbody.innerHTML = [...historyStore].reverse().map(item => `
+                <tr class="hover:bg-slate-900/80 transition-colors">
+                    <td class="px-4 py-2 text-cyan-400 font-bold">${item.time || 'sin/info'}</td>
+                    <td class="px-4 py-2 font-semibold text-amber-300">${fmt(item.temp_aht, 2, '°C')}</td>
+                    <td class="px-4 py-2 text-blue-300">${fmt(item.humidity, 1, '%')}</td>
+                    <td class="px-4 py-2 text-teal-300">${fmt(item.dew_point, 2, '°C')}</td>
+                    <td class="px-4 py-2 text-emerald-300">${fmt(item.pressure, 1, 'hPa')}</td>
+                    <td class="px-4 py-2 text-slate-300">${typeof item.rain_prob === 'number' ? item.rain_prob + ' %' : 'sin/info'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Chart time range selector (1h, 3h, 6h, 12h, 24h)
+        function setChartHours(hours) {
+            config.chartHours = hours;
+
+            document.querySelectorAll('.chart-range-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-hours'), 10) === hours) {
+                    btn.className = 'chart-range-btn chart-tab-active px-2.5 py-1.5 rounded-lg border border-transparent transition-all';
+                } else {
+                    btn.className = 'chart-range-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all';
+                }
+            });
+
+            const titleEl = document.getElementById('chartTitleText');
+            if (titleEl) {
+                titleEl.textContent = hours === 1
+                    ? 'Evolución Histórica (Última 1 Hora)'
+                    : `Evolución Histórica (Últimas ${hours} Horas)`;
+            }
+
+            updateMainChartData(true);
+        }
+
+        // Get history slice filtered by selected chart hours
+        function getFilteredChartHistory() {
+            if (historyStore.length === 0) return [];
+            if (config.chartHours >= 24) return historyStore;
+
+            const lastItem = historyStore[historyStore.length - 1];
+            const latestTs = lastItem && typeof lastItem._ts === 'number' ? lastItem._ts : null;
+
+            if (latestTs !== null) {
+                const cutoff = latestTs - config.chartHours * 3600 * 1000;
+                const filtered = historyStore.filter(item => (item._ts ?? latestTs) >= cutoff);
+                if (filtered.length > 0) return filtered;
+            }
+
+            const count = Math.max(2, Math.ceil(historyStore.length * (config.chartHours / 24)));
+            return historyStore.slice(-count);
+        }
+
+        // Chart tab switcher
+        function switchChartTab(tab) {
+            config.activeTab = tab;
+            const tabs = {
+                temp: document.getElementById('tabBtnTemp'),
+                humidity: document.getElementById('tabBtnHum'),
+                pressure: document.getElementById('tabBtnPress')
+            };
+
+            Object.keys(tabs).forEach(key => {
+                if (key === tab) {
+                    tabs[key].className = 'chart-tab-active px-3 py-1.5 rounded-lg border border-transparent transition-all';
+                } else {
+                    tabs[key].className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent transition-all';
+                }
+            });
+
+            updateMainChartData(true);
+        }
+
+        // Initialize Main Chart Once
+        function initCharts() {
+            const ctxMain = document.getElementById('mainHistoryChart').getContext('2d');
+            mainChart = new Chart(ctxMain, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false, // Prevents disappearance/re-rendering animation glitches
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#cbd5e1', font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#64748b', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // FLICKER-FREE Chart Update (Updates dataset references in place)
+        function updateMainChartData(forceRedraw = false) {
+            if (!mainChart) return;
+
+            const chartData = getFilteredChartHistory();
+            const labels = chartData.map(d => d.time);
+
+            if (config.activeTab === 'temp') {
+                mainChart.data.labels = labels;
+                mainChart.data.datasets = [
+                    {
+                        label: 'Temp AHT20 (°C)',
+                        data: chartData.map(d => d.temp_aht),
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        fill: true,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'Punto de Rocío (°C)',
+                        data: chartData.map(d => d.dew_point),
+                        borderColor: '#2dd4bf',
+                        borderDash: [4, 4],
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }
+                ];
+            } else if (config.activeTab === 'humidity') {
+                mainChart.data.labels = labels;
+                mainChart.data.datasets = [
+                    {
+                        label: 'Humedad Relativa (%)',
+                        data: chartData.map(d => d.humidity),
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        fill: true,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'Prob. Lluvia (%)',
+                        data: chartData.map(d => d.rain_prob),
+                        borderColor: '#818cf8',
+                        backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 1
+                    }
+                ];
+            } else if (config.activeTab === 'pressure') {
+                mainChart.data.labels = labels;
+                mainChart.data.datasets = [
+                    {
+                        label: 'Presión Atmosférica (hPa)',
+                        data: chartData.map(d => d.pressure),
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        fill: true,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 2
+                    }
+                ];
+            }
+
+            // 'none' prevents animation flashing on tick updates
+            mainChart.update(forceRedraw ? 'default' : 'none');
+        }
+
+        function updateUIStatusDisconnected(errorMsg) {
+            const statusDot = document.getElementById('statusDot');
+            const statusPing = document.getElementById('statusPing');
+            const statusText = document.getElementById('statusText');
+
+            statusDot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500';
+            statusPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75';
+            statusText.textContent = 'Desconectado';
+            statusText.className = 'text-rose-400';
+
+            document.getElementById('lastUpdated').textContent = 'sin/info';
+            document.getElementById('tempAht').textContent = 'sin/info';
+            document.getElementById('tempBadge').textContent = 'sin/info';
+            document.getElementById('dewPointVal').textContent = 'sin/info';
+            document.getElementById('humidityVal').textContent = 'sin/info';
+            document.getElementById('humidityBar').style.width = '0%';
+            document.getElementById('humidityComfortBadge').textContent = 'sin/info';
+            document.getElementById('pressureVal').textContent = 'sin/info';
+            document.getElementById('pressureTrend').textContent = 'sin/info';
+            document.getElementById('approxAltitude').textContent = 'sin/info';
+            document.getElementById('rainProb').textContent = 'sin/info';
+            document.getElementById('rainBadge').textContent = 'sin/info';
+            document.getElementById('rainStatusText').textContent = 'sin/info';
+        }
+
+        // Toggle Table Viewer
+        function toggleTableViewer() {
+            const container = document.getElementById('tableContainer');
+            const chevron = document.getElementById('tableChevron');
+            const text = document.getElementById('tableToggleText');
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+                text.textContent = 'Ocultar Tabla';
+            } else {
+                container.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+                text.textContent = 'Mostrar Tabla';
+            }
+        }
+
+        // Export CSV
+        function exportToCSV() {
+            if (historyStore.length === 0) return;
+
+            let csvContent = "data:text/csv;charset=utf-8,Hora,Temperatura_AHT20,Humedad,Punto_Rocio,Presion_hPa,Prob_Lluvia\n";
+            historyStore.forEach(row => {
+                csvContent += `${row.time},${row.temp_aht},${row.humidity},${row.dew_point},${row.pressure},${row.rain_prob}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `estacion_meteorologica_24h_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

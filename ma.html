@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoFuturo - Protegiendo nuestro planeta para las nuevas generaciones</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        earth: {
+                            100: '#f7f4f0',
+                            200: '#e8e1d7',
+                            600: '#8c6d53',
+                            800: '#4a382a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(rgba(20, 83, 45, 0.75), rgba(15, 23, 42, 0.8)), 
+                        url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=1920') center/cover no-repeat;
+        }
+    </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-800 antialiased">
+
+    <!-- 1. NAVEGACIÓN FIJA -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#inicio" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white text-xl group-hover:scale-105 transition-transform">
+                        <i class="fa-solid font-bold fa-leaf"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-slate-900">Eco<span class="text-brand-600">Futuro</span></span>
+                </a>
+
+                <!-- Menú Desktop -->
+                <nav class="hidden md:flex space-x-8 items-center font-medium text-slate-600">
+                    <a href="#inicio" class="hover:text-brand-600 transition-colors py-2">Inicio</a>
+                    <a href="#nosotros" class="hover:text-brand-600 transition-colors py-2">Nosotros</a>
+                    <a href="#proyectos" class="hover:text-brand-600 transition-colors py-2">Proyectos</a>
+                    <a href="#como-ayudar" class="hover:text-brand-600 transition-colors py-2">Cómo Ayudar</a>
+                    <a href="#contacto" class="hover:text-brand-600 transition-colors py-2">Contacto</a>
+                </nav>
+
+                <!-- Botón Acción Desktop -->
+                <div class="hidden md:flex items-center">
+                    <a href="#como-ayudar" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-full font-semibold shadow-md shadow-brand-600/20 hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-heart mr-2"></i>Donar Ahora
+                    </a>
+                </div>
+
+                <!-- Botón Menú Móvil -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" type="button" class="text-slate-600 hover:text-slate-900 focus:outline-none p-2 rounded-lg" aria-label="Abrir menú">
+                        <i class="fa-solid fa-bars text-2xl" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú Desplegable Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-100 px-4 pt-2 pb-6 space-y-3 shadow-lg">
+            <a href="#inicio" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Inicio</a>
+            <a href="#nosotros" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Nosotros</a>
+            <a href="#proyectos" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Proyectos</a>
+            <a href="#como-ayudar" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Cómo Ayudar</a>
+            <a href="#contacto" class="mobile-link block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Contacto</a>
+            <a href="#como-ayudar" class="mobile-link block w-full text-center bg-brand-600 text-white px-5 py-3 rounded-full font-semibold shadow-md mt-4">
+                <i class="fa-solid fa-heart mr-2"></i>Donar Ahora
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <section id="inicio" class="hero-gradient min-h-screen flex items-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative text-white">
+        <div class="max-w-5xl mx-auto text-center space-y-8">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/20 backdrop-blur-sm border border-brand-400/30 text-brand-300 font-semibold text-sm">
+                <i class="fa-solid fa-seedling"></i> Por un Planeta Vivo y Humano
+            </span>
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight">
+                Acciones de hoy para proteger la <span class="text-brand-400 underline decoration-brand-500/50">tierra del mañana</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-slate-200 max-w-3xl mx-auto font-light leading-relaxed">
+                En EcoFuturo trabajamos sin descanso en la reforestación de bosques, la descontaminación marina y la concienciación ecológica para restaurar los ecosistemas en peligro.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <a href="#como-ayudar" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-brand-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg">
+                    <span>Unirse a la Causa</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </a>
+                <a href="#proyectos" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold border border-white/20 px-8 py-4 rounded-full transition-all flex items-center justify-center text-lg">
+                    Conocer Proyectos
+                </a>
+            </div>
+
+            <!-- Datos estadísticos rápidos -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-16 border-t border-white/10 max-w-4xl mx-auto">
+                <div>
+                    <p class="text-3xl sm:text-4xl font-bold text-brand-400">+50K</p>
+                    <p class="text-xs sm:text-sm text-slate-300">Árboles Plantados</p>
+                </div>
+                <div>
+                    <p class="text-3xl sm:text-4xl font-bold text-brand-400">120 Ton</p>
+                    <p class="text-xs sm:text-sm text-slate-300">Plástico Recogido</p>
+                </div>
+                <div>
+                    <p class="text-3xl sm:text-4xl font-bold text-brand-400">+15K</p>
+                    <p class="text-xs sm:text-sm text-slate-300">Voluntarios</p>
+                </div>
+                <div>
+                    <p class="text-3xl sm:text-4xl font-bold text-brand-400">35</p>
+                    <p class="text-xs sm:text-sm text-slate-300">Comunidades Educadas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SECCIÓN NOSOTROS -->
+    <section id="nosotros" class="py-24 bg-earth-100/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-sm font-bold text-brand-700 uppercase tracking-wider">Quiénes Somos</h2>
+                <p class="text-3xl sm:text-4xl font-extrabold text-slate-900">Protegemos los ecosistemas con la ayuda de las personas</p>
+                <div class="w-20 h-1 bg-brand-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-slate-900">Nuestra Misión</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        EcoFuturo es una organización sin fines de lucro comprometida con la preservación y regeneración de la biodiversidad. Nacimos con la firme convicción de que la acción colectiva local es el motor imprescindible para detener el cambio climático global.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed">
+                        Trabajamos codo a codo con comunidades, escuelas y organizaciones para impulsar iniciativas sostenibles que devuelvan el equilibrio vital a la naturaleza.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="flex items-center space-x-3 text-slate-700 font-semibold">
+                            <i class="fa-solid fa-circle-check text-brand-600"></i>
+                            <span>100% Transparencia</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-slate-700 font-semibold">
+                            <i class="fa-solid fa-circle-check text-brand-600"></i>
+                            <span>Acción Directa</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-slate-700 font-semibold">
+                            <i class="fa-solid fa-circle-check text-brand-600"></i>
+                            <span>Impacto Medible</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-slate-700 font-semibold">
+                            <i class="fa-solid fa-circle-check text-brand-600"></i>
+                            <span>Educación Gratuita</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-brand-600/10 rounded-3xl transform rotate-2"></div>
+                    <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1000" alt="Voluntarios en la naturaleza" class="relative rounded-2xl shadow-xl w-full object-cover h-96">
+                </div>
+            </div>
+
+            <!-- Valores -->
+            <div class="grid sm:grid-cols-3 gap-8 pt-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-brand-100 text-brand-700 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-2">Compromiso</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">Dedicamos nuestro tiempo y recursos con total responsabilidad para garantizar un futuro sostenible.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-brand-100 text-brand-700 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-2">Comunidad</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">Creemos en el poder colectivo. Uniendo fuerzas logramos cambios transformadores significativos.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-brand-100 text-brand-700 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-2">Innovación Sostenible</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">Implementamos técnicas avanzadas en restauración ecológica y conservación de hábitats.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SECCIÓN NUESTROS PROYECTOS -->
+    <section id="proyectos" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-sm font-bold text-brand-700 uppercase tracking-wider">Iniciativas</h2>
+                <p class="text-3xl sm:text-4xl font-extrabold text-slate-900">Nuestros Proyectos Destacados</p>
+                <div class="w-20 h-1 bg-brand-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Tarjeta 1: Reforestación -->
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&q=80&w=800" alt="Reforestación" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-4 left-4 bg-brand-700 text-white text-xs px-3 py-1 rounded-full font-semibold tracking-wide uppercase">Bosques</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Sembrando Pulmones</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Recuperación de áreas degradadas mediante la plantación masiva de especies autóctonas para proteger la biodiversidad silvestre.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span><i class="fa-solid fa-tree text-brand-600 mr-1"></i> Meta: 100k Árboles</span>
+                            <span class="text-brand-700">82% Completado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Limpieza de Océanos -->
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://images.unsplash.com/photo-1621451537084-482c73073a0f?auto=format&fit=crop&q=80&w=800" alt="Limpieza de Océanos" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-4 left-4 bg-sky-700 text-white text-xs px-3 py-1 rounded-full font-semibold tracking-wide uppercase">Mar & Costas</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Mares Sin Plásticos</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Jornadas de limpieza continua en playas y ecosistemas marinos, instalando barreras de contención de residuos en ríos.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span><i class="fa-solid fa-water text-sky-600 mr-1"></i> Meta: 200 Toneladas</span>
+                            <span class="text-sky-700">60% Completado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Educación Ambiental -->
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800" alt="Educación Ambiental" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-4 left-4 bg-amber-700 text-white text-xs px-3 py-1 rounded-full font-semibold tracking-wide uppercase">Educación</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Aulas Verdes</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Talleres y seminarios educativos para niños y jóvenes en centros escolares con el fin de fomentar hábitos ecológicos sostenibles.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span><i class="fa-solid fa-graduation-cap text-amber-600 mr-1"></i> Meta: 50 Escuelas</span>
+                            <span class="text-amber-700">90% Completado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SECCIÓN CÓMO AYUDAR -->
+    <section id="como-ayudar" class="py-24 bg-brand-900 text-white relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-96 h-96 bg-brand-700/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-brand-800/40 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-sm font-bold text-brand-400 uppercase tracking-wider">Haz la Diferencia</h2>
+                <p class="text-3xl sm:text-4xl font-extrabold">¿Cómo puedes colaborar?</p>
+                <div class="w-20 h-1 bg-brand-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Opción 1: Voluntariado -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm flex flex-col justify-between hover:bg-white/10 transition-colors">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-hands-helping"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">Sé Voluntario</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Únete a nuestras brigadas de siembra, jornadas de limpieza costera y difusión educativa. Tu tiempo puede salvar hábitats.
+                        </p>
+                    </div>
+                    <a href="#contacto" class="mt-8 inline-block text-center w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-brand-400 hover:text-white transition-colors">
+                        Postularse
+                    </a>
+                </div>
+
+                <!-- Opción 2: Donaciones -->
+                <div class="bg-brand-600 rounded-2xl p-8 shadow-2xl flex flex-col justify-between relative transform md:-translate-y-4 border border-brand-400/30">
+                    <span class="absolute -top-3 right-6 bg-amber-400 text-slate-900 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow">Más Necesario</span>
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-white/20 text-white rounded-xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">Haz una Donación</h3>
+                        <p class="text-brand-100 text-sm leading-relaxed">
+                            Financia herramientas, semillas y logística. Cada aporte nos permite expandir nuestros proyectos territoriales.
+                        </p>
+                    </div>
+                    <a href="#contacto" class="mt-8 inline-block text-center w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
+                        Donar Ahora
+                    </a>
+                </div>
+
+                <!-- Opción 3: Difusión -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm flex flex-col justify-between hover:bg-white/10 transition-colors">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">Difunde el Mensaje</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Comparte nuestras campañas en tus redes sociales y concientiza a tu círculo cercano sobre el respeto por el medio ambiente.
+                        </p>
+                    </div>
+                    <a href="#contacto" class="mt-8 inline-block text-center w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-brand-400 hover:text-white transition-colors">
+                        Compartir Campaña
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SECCIÓN FORMULARIO DE CONTACTO -->
+    <section id="contacto" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-slate-100">
+                
+                <!-- Info de Contacto -->
+                <div class="space-y-8 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold text-brand-700 uppercase tracking-wider mb-2">Contacto</h2>
+                        <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Ponte en comunicación con nosotros</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            ¿Tienes dudas, deseas sumarte como voluntario o realizar una alianza corporativa? Escríbenos y nuestro equipo te responderá lo antes posible.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-brand-50 text-brand-700 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Ubicación</h4>
+                                <p class="text-slate-600 text-sm">Av. Verde Ecológico 123, Ciudad Natura</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-brand-50 text-brand-700 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Correo Electrónico</h4>
+                                <p class="text-slate-600 text-sm">contacto@ecofuturo-ong.org</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-brand-50 text-brand-700 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Teléfono</h4>
+                                <p class="text-slate-600 text-sm">+56 9 1234 5678</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100">
+                        <p class="text-xs text-slate-400">Atención presencial de Lunes a Viernes de 09:00 a 18:00 hrs.</p>
+                    </div>
+                </div>
+
+                <!-- Formulario Interactivo -->
+                <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100">
+                    <form id="contact-form" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">Nombre Completo</label>
+                            <input type="text" id="name" required placeholder="Ej. Maria González" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all bg-white">
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Correo Electrónico</label>
+                            <input type="email" id="email" required placeholder="tu@email.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all bg-white">
+                        </div>
+
+                        <div>
+                            <label for="interest" class="block text-sm font-semibold text-slate-700 mb-2">¿Cómo deseas participar?</label>
+                            <select id="interest" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all bg-white text-slate-700">
+                                <option value="voluntariado">Voluntariado en terreno</option>
+                                <option value="donacion">Información sobre donaciones</option>
+                                <option value="alianza">Alianzas o Empresas</option>
+                                <option value="otro">Otro motivo</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="message" class="block text-sm font-semibold text-slate-700 mb-2">Mensaje</label>
+                            <textarea id="message" rows="4" required placeholder="Escribe tu mensaje aquí..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all bg-white resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center space-x-2">
+                            <span>Enviar Mensaje</span>
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                        </button>
+                    </form>
+
+                    <!-- Mensaje de éxito oculto -->
+                    <div id="form-success" class="hidden text-center py-8 space-y-4">
+                        <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-3xl mx-auto">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <h4 class="text-2xl font-bold text-slate-900">¡Mensaje Enviado!</h4>
+                        <p class="text-slate-600 text-sm max-w-xs mx-auto">
+                            Muchas gracias por ponerte en contacto con EcoFuturo. Nos comunicaremos contigo muy pronto.
+                        </p>
+                        <button id="reset-form" class="text-brand-700 font-semibold text-sm hover:underline pt-2">
+                            Enviar otro mensaje
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. PIE DE PÁGINA (FOOTER) -->
+    <footer class="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Marca -->
+                <div class="space-y-4 md:col-span-1">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-base">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <span class="font-bold text-xl text-white tracking-tight">Eco<span class="text-brand-500">Futuro</span></span>
+                    </div>
+                    <p class="text-xs leading-relaxed">
+                        ONG sin fines de lucro enfocada en la conservación y restauración ambiental a través de acciones locales comunitarias.
+                    </p>
+                </div>
+
+                <!-- Enlaces rápidos -->
+                <div>
+                    <h5 class="text-white font-semibold text-sm mb-4">Navegación</h5>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#inicio" class="hover:text-brand-400 transition-colors">Inicio</a></li>
+                        <li><a href="#nosotros" class="hover:text-brand-400 transition-colors">Nosotros</a></li>
+                        <li><a href="#proyectos" class="hover:text-brand-400 transition-colors">Proyectos</a></li>
+                        <li><a href="#como-ayudar" class="hover:text-brand-400 transition-colors">Cómo Ayudar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal / Transparencia -->
+                <div>
+                    <h5 class="text-white font-semibold text-sm mb-4">Transparencia</h5>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Memorias Anuales</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Política de Privacidad</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Términos y Condiciones</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Uso de Fondos</a></li>
+                    </ul>
+                </div>
+
+                <!-- Redes Sociales -->
+                <div>
+                    <h5 class="text-white font-semibold text-sm mb-4">Síguenos</h5>
+                    <p class="text-xs mb-4">Únete a nuestra comunidad digital:</p>
+                    <div class="flex space-x-3">
+                        <a href="#" aria-label="Facebook" class="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 hover:bg-brand-600 hover:text-white transition-colors">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <a href="#" aria-label="Instagram" class="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 hover:bg-brand-600 hover:text-white transition-colors">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="#" aria-label="Twitter" class="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 hover:bg-brand-600 hover:text-white transition-colors">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 hover:bg-brand-600 hover:text-white transition-colors">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derechos Reservados -->
+            <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs space-y-4 sm:space-y-0">
+                <p>&copy; 2026 EcoFuturo ONG. Todos los derechos reservados.</p>
+                <p class="text-slate-500">Diseñado con dedicación para un planeta más verde 🌿</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVIDAD JS -->
+    <script>
+        // 1. Control del Menú Móvil
+        const menuBtn = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            } else {
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-xmark');
+            }
+        });
+
+        // Cerrar menú móvil al hacer clic en un enlace
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            });
+        });
+
+        // 2. Control del Formulario de Contacto
+        const contactForm = document.getElementById('contact-form');
+        const formSuccess = document.getElementById('form-success');
+        const resetBtn = document.getElementById('reset-form');
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulación de envío
+            contactForm.classList.add('hidden');
+            formSuccess.classList.remove('hidden');
+        });
+
+        resetBtn.addEventListener('click', () => {
+            contactForm.reset();
+            formSuccess.classList.add('hidden');
+            contactForm.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

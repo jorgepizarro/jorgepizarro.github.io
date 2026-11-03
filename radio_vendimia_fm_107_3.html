@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Vendimia FM 107.3 - La Regalona de Molina</title>
+    
+    <!-- PWA Meta Tags & iOS Support -->
+    <meta name="theme-color" content="#4C1D95">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Radio Vendimia">
+    <link rel="apple-touch-icon" href="/logo.jpg">
+    <link rel="icon" type="image/jpeg" href="/logo.jpg">
+
+    <!-- Embedded PWA Web App Manifest (Data URI Base64 JSON) -->
+    <link rel="manifest" href='data:application/manifest+json;utf8,{"name":"Radio Vendimia 107.3 FM","short_name":"Vendimia FM","description":"Radio Vendimia FM 107.3 La Regalona de Molina - Cumbia, Rancheras y Éxitos del Recuerdo","start_url":".","display":"standalone","background_color":"#0F061A","theme_color":"#4C1D95","orientation":"portrait","icons":[{"src":"/logo.jpg","sizes":"192x192","type":"image/jpeg","purpose":"any maskable"},{"src":"/logo.jpg","sizes":"512x512","type":"image/jpeg","purpose":"any maskable"}]}'>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Montserrat & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tropical: {
+                            purple: '#4C1D95',
+                            darkPurple: '#2E1065',
+                            magenta: '#C026D3',
+                            pink: '#E11D48',
+                            green: '#10B981',
+                            leaf: '#059669',
+                            yellow: '#F59E0B',
+                            sun: '#FBBF24',
+                            bgDark: '#0F061A',
+                            cardBg: '#1D0D33'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(225, 29, 72, 0.4)' },
+                            '50%': { boxShadow: '0 0 35px rgba(245, 158, 11, 0.7)' }
+                        },
+                        floatSlow: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 3s infinite',
+                        'float': 'floatSlow 4s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(29, 13, 51, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-nav {
+            background: rgba(15, 6, 26, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hero-bg {
+            background: radial-gradient(circle at 10% 20%, rgba(192, 38, 212, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.2) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.5) 0%, transparent 80%),
+                        #0F061A;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #FBBF24 0%, #E11D48 50%, #C026D3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F061A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7C3AED;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F59E0B;
+        }
+    </style>
+</head>
+<body class="bg-tropical-bgDark text-slate-100 font-sans antialiased selection:bg-tropical-yellow selection:text-tropical-bgDark pb-24 md:pb-0">
+
+    <!-- Elemento Audio para la Transmisión Online -->
+    <audio id="radioStream" preload="none">
+        <source src="http://cast.radioservicios.cl:8050/vendimia" type="audio/mpeg">
+        <source src="https://cast.radioservicios.cl:8050/vendimia" type="audio/mpeg">
+        Tu navegador no soporta el reproductor de audio online.
+    </audio>
+
+    <!-- BANNER MODAL DE INSTALACIÓN PWA -->
+    <div id="pwaInstallBanner" class="hidden fixed inset-x-4 top-24 z-50 max-w-lg mx-auto glass-card border-2 border-tropical-yellow/60 rounded-3xl p-5 shadow-2xl animate-bounce-short">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <img src="/logo.jpg" alt="Logo Vendimia" class="w-12 h-12 rounded-2xl object-cover border border-white/20 shadow-md" onerror="this.src='https://placehold.co/100x100/4C1D95/FFFFFF?text=Vendimia'">
+                <div>
+                    <h4 class="font-display font-bold text-white text-base">¡Instala nuestra App Movil!</h4>
+                    <p class="text-xs text-tropical-sun">Escucha la 107.3 FM directamente desde tu pantalla de inicio.</p>
+                </div>
+            </div>
+            <button id="closePwaBanner" class="text-slate-400 hover:text-white text-xl p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div id="pwaAndroidControls" class="mt-4 pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+            <button id="pwaBannerInstallBtn" class="w-full bg-gradient-to-r from-tropical-yellow via-amber-400 to-tropical-pink hover:opacity-95 text-tropical-bgDark font-black text-xs px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 uppercase tracking-wider">
+                <i class="fa-solid fa-download text-sm"></i>
+                Instalar Ahora
+            </button>
+        </div>
+
+        <div id="pwaIosInstructions" class="hidden mt-3 pt-3 border-t border-white/10 text-xs text-slate-200 space-y-1.5">
+            <p class="font-semibold text-tropical-yellow flex items-center gap-1.5">
+                <i class="fa-brands fa-apple text-sm"></i> Instalación en iPhone / iPad:
+            </p>
+            <ol class="list-decimal list-inside text-slate-300 space-y-1">
+                <li>Toca el botón <span class="font-bold text-white"><i class="fa-solid fa-share-from-square text-sky-400"></i> Compartir</span> en Safari.</li>
+                <li>Selecciona <span class="font-bold text-white"><i class="fa-regular fa-square-plus text-tropical-yellow"></i> Agregar a inicio</span>.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN SUPERIOR (HEADER) -->
+    <header class="fixed top-0 left-0 w-full z-40 glass-nav border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo & Nombre de la Emisora -->
+            <a href="#" class="flex items-center gap-3 group">
+                <img src="/logo.jpg" alt="Logo Radio Vendimia FM 107.3" class="h-14 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/200x200/4C1D95/FFFFFF?text=Radio+Vendimia'">
+                <div class="hidden sm:block">
+                    <div class="flex items-center gap-2">
+                        <span class="font-display font-black text-xl tracking-tight text-white group-hover:text-tropical-sun transition-colors">RADIO VENDIMIA</span>
+                        <span class="bg-tropical-pink text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">107.3 FM</span>
+                    </div>
+                    <p class="text-xs text-tropical-sun/90 font-medium italic">"La Regalona de Molina"</p>
+                </div>
+            </a>
+
+            <!-- Navegación para Desktop -->
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-200">
+                <a href="#hero" class="hover:text-tropical-sun transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-tower-broadcast text-tropical-yellow"></i> En Vivo
+                </a>
+                <a href="#programacion" class="hover:text-tropical-sun transition-colors">Programación</a>
+                <a href="#estilos" class="hover:text-tropical-sun transition-colors">Estilos Musicales</a>
+                <a href="#saludos" class="hover:text-tropical-sun transition-colors">Saludos & Pedidos</a>
+                <a href="#contacto" class="hover:text-tropical-sun transition-colors">Contacto</a>
+            </nav>
+
+            <!-- Acciones Header (Botón PWA + WhatsApp) -->
+            <div class="hidden md:flex items-center gap-3">
+                <button id="pwaNavInstallBtn" class="hidden bg-gradient-to-r from-tropical-yellow to-amber-500 hover:from-amber-400 hover:to-tropical-yellow text-tropical-bgDark font-black px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 transition-all shadow-md active:scale-95">
+                    <i class="fa-solid fa-mobile-screen-button text-sm"></i>
+                    <span>INSTALAR APP</span>
+                </button>
+
+                <a href="https://wa.me/56912345678?text=Hola%20Radio%20Vendimia,%20un%20saludo%20para%20la%20radio!" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-tropical-green to-emerald-600 hover:from-emerald-500 hover:to-tropical-green text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all shadow-lg shadow-emerald-900/30 hover:scale-105">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Estudio En Vivo</span>
+                </a>
+            </div>
+
+            <!-- Botón Menú Mobile -->
+            <button id="mobileMenuBtn" class="lg:hidden text-slate-200 hover:text-white p-2 text-2xl focus:outline-none">
+                <i class="fa-solid fa-bars" id="menuIcon"></i>
+            </button>
+        </div>
+
+        <!-- Menú Mobile Desplegable -->
+        <div id="mobileMenu" class="hidden lg:hidden glass-card border-t border-white/10 px-6 py-6 space-y-4">
+            <a href="#hero" class="mobile-link block text-lg font-medium text-slate-200 hover:text-tropical-sun">En Vivo 107.3 FM</a>
+            <a href="#programacion" class="mobile-link block text-lg font-medium text-slate-200 hover:text-tropical-sun">Programación</a>
+            <a href="#estilos" class="mobile-link block text-lg font-medium text-slate-200 hover:text-tropical-sun">Nuestra Música</a>
+            <a href="#saludos" class="mobile-link block text-lg font-medium text-slate-200 hover:text-tropical-sun">Pedir Canción / Saludo</a>
+            <a href="#contacto" class="mobile-link block text-lg font-medium text-slate-200 hover:text-tropical-sun">Contacto & Cobertura</a>
+            
+            <div class="pt-4 border-t border-white/10 space-y-3">
+                <button id="pwaMobileMenuInstallBtn" class="hidden w-full bg-gradient-to-r from-tropical-yellow to-amber-500 text-tropical-bgDark font-black py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg text-sm">
+                    <i class="fa-solid fa-mobile-screen-button text-base"></i>
+                    INSTALAR APP EN MI MÓVIL
+                </button>
+                <a href="https://wa.me/56912345678?text=Hola%20Radio%20Vendimia,%20saludos%20para%20la%20107.3!" target="_blank" class="w-full bg-tropical-green text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    WhatsApp Estudio En Vivo
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- REPRODUCTOR EN VIVO PRINCIPAL (HERO SECTION) -->
+    <section id="hero" class="relative min-h-screen pt-28 pb-16 flex items-center hero-bg overflow-hidden">
+        <!-- Luces y destellos decorativos -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-tropical-magenta/20 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-[380px] h-[380px] bg-tropical-green/15 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Columna Izquierda: Presentación y Reproductor de Radio -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    
+                    <!-- Badge Indicador de Transmisión -->
+                    <div class="inline-flex items-center gap-3 bg-tropical-darkPurple/80 border border-tropical-magenta/40 px-4 py-2 rounded-full shadow-inner">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                        <span class="text-xs font-bold tracking-wider text-amber-200 uppercase">TRANSMITIENDO EN VIVO • MOLINA 107.3 FM</span>
+                    </div>
+
+                    <!-- Título y Eslogan -->
+                    <div class="space-y-3">
+                        <h1 class="font-display font-black text-4xl sm:text-6xl tracking-tight text-white leading-none">
+                            RADIO VENDIMIA <br>
+                            <span class="gradient-text">107.3 FM</span>
+                        </h1>
+                        <p class="text-xl sm:text-2xl font-bold text-tropical-sun tracking-wide">
+                            "Siempre contigo, siempre con buena música"
+                        </p>
+                        <p class="text-base text-slate-300 max-w-xl font-normal leading-relaxed mx-auto lg:mx-0">
+                            La Regalona de Molina y la Región del Maule. La mejor cumbia, música tropical, rancheras y los éxitos inolvidables del recuerdo.
+                        </p>
+                    </div>
+
+                    <!-- TARJETA DEL REPRODUCTOR INTERACTIVO -->
+                    <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/15 relative overflow-hidden animate-pulse-glow">
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+                            <!-- Logo miniatura y título del programa -->
+                            <div class="flex items-center gap-4 text-left">
+                                <img src="/logo.jpg" alt="Vendimia FM" class="w-16 h-16 rounded-2xl object-cover border-2 border-tropical-yellow/50 shadow-lg" onerror="this.src='https://placehold.co/100x100/4C1D95/FFFFFF?text=Vendimia'">
+                                <div>
+                                    <span class="text-xs font-bold text-tropical-yellow uppercase tracking-widest">Sintonizando Ahora</span>
+                                    <h3 id="currentShowTitle" class="text-lg sm:text-xl font-bold text-white font-display">Señal Online En Vivo</h3>
+                                    <p id="currentShowSubtitle" class="text-xs sm:text-sm text-purple-200">Molina, Región del Maule • Chile</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Badge de estado -->
+                            <div id="playerStatusBadge" class="bg-slate-900/80 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border border-white/10">
+                                <i class="fa-solid fa-circle-stop text-slate-400"></i>
+                                <span>Presiona Play para escuchar</span>
+                            </div>
+                        </div>
+
+                        <!-- Ecualizador Animado Canvas HTML5 -->
+                        <div class="w-full h-16 bg-slate-950/80 rounded-2xl mb-6 px-4 flex items-center justify-center overflow-hidden border border-white/10 relative">
+                            <canvas id="visualizerCanvas" class="w-full h-full"></canvas>
+                            <div id="visualizerPlaceholder" class="absolute text-xs text-amber-200/70 font-semibold tracking-wider">
+                                <i class="fa-solid fa-headphones mr-1"></i> HAZ CLIC EN REPRODUCIR SEÑAL
+                            </div>
+                        </div>
+
+                        <!-- Controles de Audio: Botón Play Gigante + Control de Volumen -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                            
+                            <!-- BOTÓN REPRODUCIR / PAUSAR -->
+                            <button id="mainPlayBtn" class="w-full sm:w-auto flex-1 bg-gradient-to-r from-tropical-yellow via-amber-400 to-tropical-pink hover:opacity-95 text-tropical-bgDark font-black text-lg px-8 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 group">
+                                <i id="mainPlayIcon" class="fa-solid fa-play text-2xl group-hover:scale-110 transition-transform"></i>
+                                <span id="mainPlayText">REPRODUCIR SEÑAL</span>
+                            </button>
+
+                            <!-- Slider de Volumen y Mute -->
+                            <div class="w-full sm:w-48 bg-slate-950/70 px-4 py-3 rounded-2xl border border-white/10 flex items-center gap-3">
+                                <button id="muteBtn" class="text-slate-300 hover:text-tropical-yellow transition-colors">
+                                    <i id="volumeIcon" class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.85" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-tropical-yellow">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Etiquetas de Identidad y Botón de Instalación App Directo -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs font-semibold text-slate-300">
+                        <span class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-tropical-yellow"></i> Molina, Chile
+                        </span>
+                        <span class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                            <i class="fa-solid fa-compact-disc text-tropical-pink"></i> Cumbia & Rancheras
+                        </span>
+                        <button id="pwaHeroInstallBtn" class="hidden bg-tropical-yellow/20 hover:bg-tropical-yellow/30 text-tropical-yellow border border-tropical-yellow/40 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-download"></i> Guardar como App
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Columna Derecha: Muestra Destacada del Logo Oficial de la Radio -->
+                <div class="lg:col-span-5 relative flex justify-center">
+                    <div class="relative max-w-md w-full animate-float">
+                        <!-- Destello de fondo detrás del logo -->
+                        <div class="absolute -inset-2 bg-gradient-to-r from-tropical-yellow via-tropical-magenta to-tropical-green rounded-3xl blur-2xl opacity-50"></div>
+                        
+                        <div class="relative bg-tropical-cardBg/90 p-6 rounded-3xl border border-white/20 shadow-2xl text-center">
+                            <img src="/logo.jpg" alt="Logo Radio Vendimia FM 107.3" class="w-full h-auto max-h-[420px] object-contain rounded-2xl mx-auto shadow-md" onerror="this.src='https://placehold.co/500x500/4C1D95/FFFFFF?text=Radio+Vendimia+107.3+FM'">
+                            <div class="mt-4 pt-4 border-t border-white/10">
+                                <span class="bg-gradient-to-r from-tropical-yellow to-tropical-pink bg-clip-text text-transparent font-black text-xl tracking-wide uppercase">
+                                    "LA REGALONA"
+                                </span>
+                                <p class="text-xs text-slate-300 mt-1">Transmisión oficial para toda la Comuna de Molina</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ESTILOS MUSICALES / NÚCLEO DE LA RADIO -->
+    <section id="estilos" class="py-16 relative bg-tropical-bgDark/90 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="text-tropical-yellow font-bold text-xs uppercase tracking-widest bg-tropical-yellow/10 px-3 py-1 rounded-full border border-tropical-yellow/20">Música Tropical & Popular</span>
+                <h2 class="font-display font-black text-3xl sm:text-4xl text-white">Nuestros Estilos Musicales</h2>
+                <p class="text-slate-300 text-sm">Acompañamos a las familias de Molina con el ritmo que hace bailar y emocionar.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Estilo 1: Cumbia -->
+                <div class="glass-card rounded-2xl p-6 text-center border border-white/10 hover:border-tropical-pink/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-tropical-pink/20 text-tropical-pink flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-drum"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-display mb-1">Cumbia Tropical</h3>
+                    <p class="text-xs text-slate-400">Cumbia clásica, chilena, colombiana y el ritmo bailable del momento.</p>
+                </div>
+
+                <!-- Estilo 2: Rancheras -->
+                <div class="glass-card rounded-2xl p-6 text-center border border-white/10 hover:border-tropical-yellow/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-tropical-yellow/20 text-tropical-yellow flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-guitar"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-display mb-1">Rancheras & Corridos</h3>
+                    <p class="text-xs text-slate-400">El alma del campo maulino, corridos mexicanos y rancheras alegres.</p>
+                </div>
+
+                <!-- Estilo 3: Éxitos del Recuerdo -->
+                <div class="glass-card rounded-2xl p-6 text-center border border-white/10 hover:border-tropical-magenta/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-tropical-magenta/20 text-tropical-magenta flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-compact-disc"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-display mb-1">Éxitos del Recuerdo</h3>
+                    <p class="text-xs text-slate-400">Baladas, los clásicos inolvidables de los 80, 90 y música romántica.</p>
+                </div>
+
+                <!-- Estilo 4: Música Comunitaria -->
+                <div class="glass-card rounded-2xl p-6 text-center border border-white/10 hover:border-tropical-green/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-tropical-green/20 text-tropical-green flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-display mb-1">Música Popular</h3>
+                    <p class="text-xs text-slate-400">Espacio comunitario con solicitudes directas y noticias locales de Molina.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROGRAMACIÓN DIARIA -->
+    <section id="programacion" class="py-20 relative bg-tropical-cardBg/40 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                <span class="text-tropical-pink font-bold text-xs uppercase tracking-widest bg-tropical-pink/10 px-3 py-1 rounded-full border border-tropical-pink/20">Parrilla Programática</span>
+                <h2 class="font-display font-black text-3xl sm:text-5xl text-white">Programación Destacada</h2>
+                <p class="text-slate-300 text-sm sm:text-base">Acompañándote desde temprano en el 107.3 FM y online.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Programa 1 -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10 hover:border-tropical-yellow/50 transition-all duration-300 group">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold bg-tropical-yellow/20 text-tropical-yellow px-3 py-1 rounded-full">07:00 - 10:00</span>
+                        <i class="fa-solid fa-sun text-tropical-yellow text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white font-display mb-2 group-hover:text-tropical-yellow transition-colors">El Mañanero Tropical</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">Despierta con la energía de Molina, información de la comuna, datos del tiempo y la cumbia más alegre.</p>
+                    <div class="text-xs font-semibold text-amber-200/90 pt-3 border-t border-white/10 flex items-center gap-2">
+                        <i class="fa-solid fa-microphone text-tropical-pink"></i> Conducción En Vivo
+                    </div>
+                </div>
+
+                <!-- Programa 2 -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10 hover:border-tropical-yellow/50 transition-all duration-300 group">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold bg-tropical-pink/20 text-tropical-pink px-3 py-1 rounded-full">10:00 - 13:00</span>
+                        <i class="fa-solid fa-guitar text-tropical-pink text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white font-display mb-2 group-hover:text-tropical-pink transition-colors">Rancheras & Cumbia de la Tarde</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">El infaltable del mediodía. Saludos al sector rural, corridos, rancheras tradicionales y cumbia alegre.</p>
+                    <div class="text-xs font-semibold text-amber-200/90 pt-3 border-t border-white/10 flex items-center gap-2">
+                        <i class="fa-solid fa-heart text-tropical-yellow"></i> Saludos y Peticiones
+                    </div>
+                </div>
+
+                <!-- Programa 3 -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10 hover:border-tropical-yellow/50 transition-all duration-300 group">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold bg-tropical-magenta/20 text-tropical-magenta px-3 py-1 rounded-full">15:00 - 19:00</span>
+                        <i class="fa-solid fa-radio text-tropical-magenta text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white font-display mb-2 group-hover:text-tropical-magenta transition-colors">La Hora de la Regalona</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">Interactividad total a través de WhatsApp. Música tropical, éxitos del recuerdo y saludos comunitarios.</p>
+                    <div class="text-xs font-semibold text-amber-200/90 pt-3 border-t border-white/10 flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-tropical-green"></i> WhatsApp Directo
+                    </div>
+                </div>
+
+                <!-- Programa 4 -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10 hover:border-tropical-yellow/50 transition-all duration-300 group">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold bg-tropical-green/20 text-tropical-green px-3 py-1 rounded-full">20:00 - 00:00</span>
+                        <i class="fa-solid fa-music text-tropical-green text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white font-display mb-2 group-hover:text-tropical-green transition-colors">Fiesta Bailable 107.3</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">La previa y la mejor compañía para la noche con los grandes bailables y música tropical surtida.</p>
+                    <div class="text-xs font-semibold text-amber-200/90 pt-3 border-t border-white/10 flex items-center gap-2">
+                        <i class="fa-solid fa-volume-high text-tropical-yellow"></i> Selección Especial
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ENVÍA TU SALUDO / PIDE TU CANCIÓN POR WHATSAPP -->
+    <section id="saludos" class="py-20 relative bg-gradient-to-b from-tropical-bgDark via-tropical-darkPurple to-tropical-bgDark border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Columna Informativa -->
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="text-tropical-green font-bold text-xs uppercase tracking-widest bg-tropical-green/10 px-3 py-1 rounded-full border border-tropical-green/30 inline-flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Interacción En Vivo
+                    </span>
+                    <h2 class="font-display font-black text-3xl sm:text-5xl text-white">¡Pide tu Canción o Envía un Saludo!</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Completa tus datos y la canción que deseas escuchar. Te abriremos WhatsApp con el mensaje listo para enviar directo a los locutores en la radio.
+                    </p>
+                    
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-tropical-green/20 text-tropical-green flex items-center justify-center font-bold flex-shrink-0">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold text-sm">Lectura de Mensajes al Aire</h4>
+                                <p class="text-xs text-slate-400">Tus saludos llegarán a Molina Centro, Lontué, Entreríos, Casa Blanca y sectores rurales.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-tropical-yellow/20 text-tropical-yellow flex items-center justify-center font-bold flex-shrink-0">
+                                <i class="fa-solid fa-music"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold text-sm">Petición de Cumbia y Ranchera</h4>
+                                <p class="text-xs text-slate-400">Dinos qué tema quieres bailar hoy en la 107.3 FM.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Interactivo -->
+                <div class="lg:col-span-7">
+                    <div class="glass-card rounded-3xl p-6 sm:p-8 border border-white/15 shadow-2xl">
+                        <form id="whatsappForm" class="space-y-5">
+                            <div class="grid sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label for="senderName" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Tu Nombre / Apodo</label>
+                                    <input type="text" id="senderName" required placeholder="Ej: María González" class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-tropical-yellow transition-colors text-sm">
+                                </div>
+                                <div>
+                                    <label for="senderSector" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Sector de Molina</label>
+                                    <input type="text" id="senderSector" required placeholder="Ej: Lontué, Centro, Entreríos..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-tropical-yellow transition-colors text-sm">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="songRequest" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Canción o Artista Solicitado</label>
+                                <input type="text" id="songRequest" placeholder="Ej: Una cumbia de Zúmbale Primo o Los Charros de Lumaco" class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-tropical-yellow transition-colors text-sm">
+                            </div>
+
+                            <div>
+                                <label for="greetingMessage" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Mensaje o Saludo para la Radio</label>
+                                <textarea id="greetingMessage" required rows="3" placeholder="Escribe aquí tu saludo para la familia o los auditores de la radio..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-tropical-yellow transition-colors text-sm resize-none"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-gradient-to-r from-tropical-green to-emerald-600 hover:from-emerald-500 hover:to-tropical-green text-white font-bold py-4 rounded-xl text-base flex items-center justify-center gap-3 transition-all shadow-lg shadow-emerald-900/40 active:scale-98">
+                                <i class="fa-brands fa-whatsapp text-2xl"></i>
+                                <span>Enviar Petición por WhatsApp</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACTO, COBERTURA Y PIE DE PÁGINA -->
+    <footer id="contacto" class="bg-slate-950 border-t border-white/10 py-12 text-slate-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                
+                <!-- Columna 1: Logo y Resumen -->
+                <div class="space-y-4">
+                    <img src="/logo.jpg" alt="Radio Vendimia Logo" class="h-16 w-auto object-contain" onerror="this.src='https://placehold.co/200x200/4C1D95/FFFFFF?text=Radio+Vendimia'">
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        <strong>Radio Vendimia FM 107.3 ("La Regalona")</strong><br>
+                        Transmitiendo desde Molina, Región del Maule, Chile.<br>
+                        <em>"Siempre contigo, siempre con buena música".</em>
+                    </p>
+                </div>
+
+                <!-- Columna 2: Cobertura Local -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Cobertura 107.3 FM</h4>
+                    <ul class="space-y-2 text-xs text-slate-300">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-tropical-yellow"></i> Molina Centro</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-tropical-yellow"></i> Lontué</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-tropical-yellow"></i> Entreríos / Casa Blanca</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-tropical-yellow"></i> Sectores Rurales del Maule</li>
+                    </ul>
+                </div>
+
+                <!-- Columna 3: Datos de Contacto -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Contacto Estudio</h4>
+                    <ul class="space-y-2 text-xs text-slate-300">
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-tower-cell text-tropical-pink"></i>
+                            <span>Dial: 107.3 FM</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-tropical-green"></i>
+                            <span>WhatsApp: +56 9 1234 5678</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-map-pin text-tropical-yellow"></i>
+                            <span>Molina, Región del Maule, Chile</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Columna 4: Redes Sociales -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Síguenos</h4>
+                    <p class="text-xs text-slate-400 mb-4">Sintonízanos y entérate de los eventos en Molina.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-tropical-pink flex items-center justify-center text-white transition-colors">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-tropical-pink flex items-center justify-center text-white transition-colors">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/56912345678" target="_blank" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-tropical-green flex items-center justify-center text-white transition-colors">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+                <p>&copy; 2026 Radio Vendimia FM 107.3 - Molina. Todos los derechos reservados.</p>
+                <p class="text-amber-200/80">"Siempre contigo, siempre con buena música"</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- STICKY / FLOATING MINI PLAYER (BARRA INFERIOR FIJA) -->
+    <div id="stickyMiniPlayer" class="fixed bottom-0 left-0 right-0 z-50 glass-nav border-t border-white/15 px-4 py-3 shadow-2xl transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            
+            <!-- Logo e Información del Mini Player -->
+            <div class="flex items-center gap-3 overflow-hidden">
+                <img src="/logo.jpg" alt="Logo Vendimia FM" class="w-11 h-11 rounded-xl object-cover border border-tropical-yellow/50 flex-shrink-0" onerror="this.src='https://placehold.co/80x80/4C1D95/FFFFFF?text=Vendimia'">
+                <button id="miniPlayBtn" class="w-10 h-10 rounded-full bg-gradient-to-r from-tropical-yellow to-tropical-pink text-tropical-bgDark flex items-center justify-center font-black text-lg flex-shrink-0 shadow-lg active:scale-95 transition-transform">
+                    <i id="miniPlayIcon" class="fa-solid fa-play"></i>
+                </button>
+                <div class="truncate">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white truncate">Radio Vendimia FM</span>
+                        <span id="miniLiveBadge" class="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    </div>
+                    <p class="text-[11px] text-tropical-sun truncate">107.3 FM • Molina En Vivo</p>
+                </div>
+            </div>
+
+            <!-- Mini Ecualizador Animado -->
+            <div class="hidden sm:flex items-center gap-1 h-5">
+                <div class="w-1 bg-tropical-yellow h-3 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-1 bg-tropical-pink h-5 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                <div class="w-1 bg-tropical-green h-2 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-1 bg-tropical-yellow h-4 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+
+            <!-- Acciones Rápidas Mini Player -->
+            <div class="flex items-center gap-2">
+                <button id="pwaMiniPlayerBtn" class="hidden bg-tropical-yellow/20 text-tropical-yellow hover:bg-tropical-yellow/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-tropical-yellow/40">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                    <span class="hidden sm:inline">Instalar App</span>
+                </button>
+                <a href="#saludos" class="bg-tropical-green hover:bg-emerald-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-2 flex-shrink-0 transition-colors">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span class="hidden sm:inline">Pedir Canción</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LOGICA JAVASCRIPT: REPRODUCTOR + PWA SERVICE WORKER + INSTALACIÓN -->
+    <script>
+        // --- 1. SERVICE WORKER INLINE (Blob) PARA HABILITAR INSTALACIÓN PWA ---
+        const swCode = `
+            const CACHE_NAME = 'vendimia-pwa-v1';
+            self.addEventListener('install', (e) => {
+                self.skipWaiting();
+            });
+            self.addEventListener('activate', (e) => {
+                e.waitUntil(clients.claim());
+            });
+            self.addEventListener('fetch', (e) => {
+                // Dejar fluir las peticiones de streaming de audio directamente sin interferir
+                if (e.request.url.includes('cast.radioservicios.cl')) {
+                    return;
+                }
+                e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            });
+        `;
+        if ('serviceWorker' in navigator) {
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('PWA Service Worker registrado correctamente'))
+                    .catch(err => console.log('Error registrando SW PWA:', err));
+            } catch (e) {
+                console.log('Error inicializando SW:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 2. GESTIÓN DEL EVENTO DE INSTALACIÓN PWA ("Add to Home Screen") ---
+            let deferredPrompt = null;
+            const pwaInstallBanner = document.getElementById('pwaInstallBanner');
+            const closePwaBanner = document.getElementById('closePwaBanner');
+            const pwaBannerInstallBtn = document.getElementById('pwaBannerInstallBtn');
+            
+            const pwaNavInstallBtn = document.getElementById('pwaNavInstallBtn');
+            const pwaMobileMenuInstallBtn = document.getElementById('pwaMobileMenuInstallBtn');
+            const pwaHeroInstallBtn = document.getElementById('pwaHeroInstallBtn');
+            const pwaMiniPlayerBtn = document.getElementById('pwaMiniPlayerBtn');
+            const pwaIosInstructions = document.getElementById('pwaIosInstructions');
+            const pwaAndroidControls = document.getElementById('pwaAndroidControls');
+
+            // Detectar si es iOS (Safari no emite 'beforeinstallprompt')
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            // Muestra los botones de instalación en la UI
+            function showInstallUI() {
+                if (isStandalone) return; // Si ya está instalada como App, no muestra nada
+                
+                [pwaNavInstallBtn, pwaMobileMenuInstallBtn, pwaHeroInstallBtn, pwaMiniPlayerBtn].forEach(btn => {
+                    if (btn) btn.classList.remove('hidden');
+                });
+
+                if (pwaInstallBanner) {
+                    pwaInstallBanner.classList.remove('hidden');
+                }
+
+                if (isIos && pwaIosInstructions && pwaAndroidControls) {
+                    pwaIosInstructions.classList.remove('hidden');
+                    pwaAndroidControls.classList.add('hidden');
+                }
+            }
+
+            // Capturar evento PWA para Android/Chrome/Edge
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallUI();
+            });
+
+            // Si es iOS, mostrar instrucciones directamente si no está instalada
+            if (isIos && !isStandalone) {
+                setTimeout(showInstallUI, 2000);
+            }
+
+            // Ejecutar la instalación
+            async function triggerPwaInstall() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA Prompt Outcome: ${outcome}`);
+                    deferredPrompt = null;
+                    if (pwaInstallBanner) pwaInstallBanner.classList.add('hidden');
+                } else if (isIos) {
+                    if (pwaInstallBanner) pwaInstallBanner.classList.remove('hidden');
+                } else {
+                    alert("Para instalar la aplicación, abre el menú de tu navegador y selecciona 'Agregar a la pantalla principal' o 'Instalar aplicación'.");
+                }
+            }
+
+            // Listeners de instalación PWA
+            if (pwaBannerInstallBtn) pwaBannerInstallBtn.addEventListener('click', triggerPwaInstall);
+            if (pwaNavInstallBtn) pwaNavInstallBtn.addEventListener('click', triggerPwaInstall);
+            if (pwaMobileMenuInstallBtn) pwaMobileMenuInstallBtn.addEventListener('click', triggerPwaInstall);
+            if (pwaHeroInstallBtn) pwaHeroInstallBtn.addEventListener('click', triggerPwaInstall);
+            if (pwaMiniPlayerBtn) pwaMiniPlayerBtn.addEventListener('click', triggerPwaInstall);
+
+            if (closePwaBanner) {
+                closePwaBanner.addEventListener('click', () => {
+                    pwaInstallBanner.classList.add('hidden');
+                });
+            }
+
+            // --- 3. FUNCIONALIDADES DEL REPRODUCTOR Y LA PÁGINA ---
+            const audio = document.getElementById('radioStream');
+            const mainPlayBtn = document.getElementById('mainPlayBtn');
+            const mainPlayIcon = document.getElementById('mainPlayIcon');
+            const mainPlayText = document.getElementById('mainPlayText');
+            
+            const miniPlayBtn = document.getElementById('miniPlayBtn');
+            const miniPlayIcon = document.getElementById('miniPlayIcon');
+            
+            const volumeSlider = document.getElementById('volumeSlider');
+            const muteBtn = document.getElementById('muteBtn');
+            const volumeIcon = document.getElementById('volumeIcon');
+            const playerStatusBadge = document.getElementById('playerStatusBadge');
+            
+            const canvas = document.getElementById('visualizerCanvas');
+            const visualizerPlaceholder = document.getElementById('visualizerPlaceholder');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+
+            let isPlaying = false;
+            let animationFrameId = null;
+
+            // Volumen inicial
+            audio.volume = parseFloat(volumeSlider.value);
+
+            function togglePlay() {
+                if (isPlaying) {
+                    audio.pause();
+                    setPlaybackState(false);
+                } else {
+                    audio.load();
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            setPlaybackState(true);
+                        }).catch(error => {
+                            console.error("Error al reproducir audio:", error);
+                            updateStatusBadge('Error de conexión', 'red');
+                        });
+                    }
+                }
+            }
+
+            function setPlaybackState(playing) {
+                isPlaying = playing;
+                if (playing) {
+                    mainPlayIcon.className = "fa-solid fa-pause text-2xl";
+                    mainPlayText.textContent = "PAUSAR SEÑAL";
+                    miniPlayIcon.className = "fa-solid fa-pause";
+                    updateStatusBadge('TRANSMITIENDO EN VIVO 107.3 FM', 'emerald');
+                    if (visualizerPlaceholder) visualizerPlaceholder.style.display = 'none';
+                    startCanvasAnimation();
+                } else {
+                    mainPlayIcon.className = "fa-solid fa-play text-2xl";
+                    mainPlayText.textContent = "REPRODUCIR SEÑAL";
+                    miniPlayIcon.className = "fa-solid fa-play";
+                    updateStatusBadge('SEÑAL EN PAUSA', 'slate');
+                    if (visualizerPlaceholder) visualizerPlaceholder.style.display = 'block';
+                    stopCanvasAnimation();
+                }
+            }
+
+            function updateStatusBadge(text, color) {
+                if (!playerStatusBadge) return;
+                if (color === 'emerald') {
+                    playerStatusBadge.className = "bg-emerald-950/80 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border border-emerald-500/30";
+                    playerStatusBadge.innerHTML = `<i class="fa-solid fa-circle text-red-500 animate-pulse"></i> <span>${text}</span>`;
+                } else {
+                    playerStatusBadge.className = "bg-slate-900/80 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border border-white/10";
+                    playerStatusBadge.innerHTML = `<i class="fa-solid fa-circle-stop text-slate-400"></i> <span>${text}</span>`;
+                }
+            }
+
+            mainPlayBtn.addEventListener('click', togglePlay);
+            miniPlayBtn.addEventListener('click', togglePlay);
+
+            volumeSlider.addEventListener('input', (e) => {
+                const vol = parseFloat(e.target.value);
+                audio.volume = vol;
+                updateVolumeIcon(vol);
+            });
+
+            muteBtn.addEventListener('click', () => {
+                if (audio.volume > 0) {
+                    audio.dataset.prevVolume = audio.volume;
+                    audio.volume = 0;
+                    volumeSlider.value = 0;
+                    updateVolumeIcon(0);
+                } else {
+                    const prev = audio.dataset.prevVolume || 0.85;
+                    audio.volume = prev;
+                    volumeSlider.value = prev;
+                    updateVolumeIcon(prev);
+                }
+            });
+
+            function updateVolumeIcon(vol) {
+                if (vol === 0) {
+                    volumeIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                } else if (vol < 0.5) {
+                    volumeIcon.className = "fa-solid fa-volume-low text-tropical-yellow";
+                } else {
+                    volumeIcon.className = "fa-solid fa-volume-high text-tropical-yellow";
+                }
+            }
+
+            function resizeCanvas() {
+                if (!canvas) return;
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function drawVisualizer() {
+                if (!ctx || !isPlaying) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const numBars = Math.floor(canvas.width / 9);
+                const barWidth = 5;
+                const gap = 4;
+
+                for (let i = 0; i < numBars; i++) {
+                    const randomFactor = Math.sin(Date.now() * 0.006 + i * 0.25) * 0.5 + 0.5;
+                    const barHeight = Math.max(6, randomFactor * (canvas.height - 12));
+
+                    const x = i * (barWidth + gap);
+                    const y = (canvas.height - barHeight) / 2;
+
+                    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    gradient.addColorStop(0, '#FBBF24');
+                    gradient.addColorStop(0.5, '#E11D48');
+                    gradient.addColorStop(1, '#C026D3');
+
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.roundRect(x, y, barWidth, barHeight, 3);
+                    ctx.fill();
+                }
+
+                animationFrameId = requestAnimationFrame(drawVisualizer);
+            }
+
+            function startCanvasAnimation() {
+                if (!animationFrameId) {
+                    drawVisualizer();
+                }
+            }
+
+            function stopCanvasAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            // Menú Móvil
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuIcon = document.getElementById('menuIcon');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                    if (mobileMenu.classList.contains('hidden')) {
+                        menuIcon.className = 'fa-solid fa-bars';
+                    } else {
+                        menuIcon.className = 'fa-solid fa-xmark';
+                    }
+                });
+
+                document.querySelectorAll('.mobile-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        menuIcon.className = 'fa-solid fa-bars';
+                    });
+                });
+            }
+
+            // Formulario WhatsApp
+            const whatsappForm = document.getElementById('whatsappForm');
+            if (whatsappForm) {
+                whatsappForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('senderName').value;
+                    const sector = document.getElementById('senderSector').value;
+                    const song = document.getElementById('songRequest').value;
+                    const message = document.getElementById('greetingMessage').value;
+
+                    let fullText = `Hola Radio Vendimia 107.3 FM! Soy *${name}* desde *${sector}*.%0A%0A`;
+                    if (song.trim() !== '') {
+                        fullText += `*Peticion de Cancion:* ${song}%0A`;
+                    }
+                    fullText += `*Mi Saludo:* ${message}`;
+
+                    const phone = "56912345678";
+                    const whatsappUrl = `https://wa.me/${phone}?text=${fullText}`;
+
+                    window.open(whatsappUrl, '_blank');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
